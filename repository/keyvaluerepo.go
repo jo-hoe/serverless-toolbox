@@ -10,7 +10,7 @@ type KeyValuePair struct {
 	Value interface{} `json:"value"`
 }
 
-// KeyValueRepo is a very generic repository which accepts any type
+// KeyValueRepo is a generic repository which accepts values of type interface
 type KeyValueRepo interface {
 	FindAll() ([]KeyValuePair, error)
 	Save(key string, in interface{}) (KeyValuePair, error)
