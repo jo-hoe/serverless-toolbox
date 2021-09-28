@@ -21,6 +21,7 @@ type SSMParameterStoreRepo struct {
 }
 
 // NewSSMParameterStoreRepo creates a new instance of the repository
+// The repo can take structs and store them in serialized form.
 func NewSSMParameterStoreRepo(path string, ssmClient ssmiface.SSMAPI, itemTemplate StoreItem) *SSMParameterStoreRepo {
 	return &SSMParameterStoreRepo{
 		path:             path,
@@ -29,7 +30,8 @@ func NewSSMParameterStoreRepo(path string, ssmClient ssmiface.SSMAPI, itemTempla
 	}
 }
 
-// NewSSMParameterStoreRepo creates a new instance of the repository
+// NewStringSSMParameterStoreRepo creates a new instance of the repository 
+// The repo stores the string without conversion.
 func NewStringSSMParameterStoreRepo(path string, ssmClient ssmiface.SSMAPI) *SSMParameterStoreRepo {
 	return &SSMParameterStoreRepo{
 		path:      path,
@@ -130,9 +132,12 @@ func NewSSMSession(region string) ssmiface.SSMAPI {
 	return ssm.New(sess, aws.NewConfig().WithRegion(region))
 }
 
+// Converts a struct into a json string. If input is a string and not a struct
+// no conversion will take place and string is returned instead
 func (repo *SSMParameterStoreRepo) toJSON(in interface{}) string {
-	if _, ok := in.(string); ok {
-		return fmt.Sprintf("%v", in)
+	// check if input is pure string
+	if _, ok := in.(string); ok { 
+		return fmt.Sprintf("%v", in) // do no conversion if input is pure string
 	} else {
 		byteArray, _ := json.Marshal(in)
 		return string(byteArray)
