@@ -1,7 +1,6 @@
 package aws
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/rand"
 	"os"
@@ -21,26 +20,6 @@ var defaultConfig = aws.NewConfig().WithRegion("us-west-2").WithEndpoint("http:/
 
 var mockedItem = MockItem{
 	MockString: "mock",
-}
-
-type MockItem struct {
-	MockString string
-}
-
-// ToStruct converts json string to struct
-func (mockItem MockItem) ToStruct(jsonString string) (interface{}, error) {
-	err := json.Unmarshal([]byte(jsonString), &mockItem)
-	return mockItem, err
-}
-
-type NestedMockItem struct {
-	NestedItem MockItem
-}
-
-// ToStruct converts json string to struct
-func (mockItem NestedMockItem) ToStruct(jsonString string) (interface{}, error) {
-	err := json.Unmarshal([]byte(jsonString), &mockItem)
-	return mockItem, err
 }
 
 var nestedMockedItem = NestedMockItem{

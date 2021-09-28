@@ -51,9 +51,10 @@ func (repo *SSMParameterStoreRepo) FindAll() ([]repository.KeyValuePair, error) 
 
 	err := repo.ssmClient.GetParametersByPathPages(getParametersByPathInput, func(resp *ssm.GetParametersByPathOutput, lastPage bool) bool {
 		for _, param := range resp.Parameters {
+			fullKey := *param.Name
 			item := repository.KeyValuePair{
+				Key:   fullKey[:len(repo.path)-1], // remove path from key
 				Value: *param.Value,
-				Key:   *param.Name,
 			}
 
 			results = append(results, item)

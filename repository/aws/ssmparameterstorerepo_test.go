@@ -2,6 +2,7 @@ package aws
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/service/ssm"
@@ -17,11 +18,11 @@ var testPath = "testPath/"
 // Define a mock struct to be used in your unit tests.
 type mockSSM struct {
 	ssmiface.SSMAPI
-	mapItem map[string]string
+	mapItem map[string]interface{}
 	path    string
 }
 
-func NewMockSSM(path string, mapItem map[string]string) *mockSSM {
+func NewMockSSM(path string, mapItem map[string]interface{}) *mockSSM {
 	return &mockSSM{
 		mapItem: mapItem,
 		path:    path,
@@ -29,7 +30,7 @@ func NewMockSSM(path string, mapItem map[string]string) *mockSSM {
 }
 
 func createMock() *mockSSM {
-	return NewMockSSM(testPath, map[string]string{
+	return NewMockSSM(testPath, map[string]interface{}{
 		testPath + testKey:       testValue,
 		testPath + testKey + "2": testValue + "2",
 	})
@@ -46,7 +47,8 @@ func (mock *mockSSM) GetParameter(input *ssm.GetParameterInput) (*ssm.GetParamet
 	err := errors.New("error")
 
 	if val, ok := mock.mapItem[*input.Name]; ok {
-		result.Parameter.Value = &val
+		value := fmt.Sprintf("%v", val)
+		result.Parameter.Value = &value
 		err = nil
 	} else {
 		result = nil
@@ -66,6 +68,66 @@ func (mock *mockSSM) DeleteParameter(input *ssm.DeleteParameterInput) (*ssm.Dele
 	}
 
 	return result, err
+}
+
+func (mock *mockSSM) GetParametersByPathPages(input *ssm.GetParametersByPathInput, fn func(*ssm.GetParametersByPathOutput, bool) bool) error {
+	err := errors.New("error")
+
+	if *input.Path == mock.path {
+		i := 0
+		for key, element := range mock.mapItem {
+			result := new(ssm.GetParameterOutput)
+			result.Parameter = new(ssm.Parameter)
+			result.Parameter.Name = &key
+			value := fmt.Sprintf("%v", element)
+			result.Parameter.Value = &value
+			done := fn(&ssm.GetParametersByPathOutput{
+				Parameters: []*ssm.Parameter{result.Parameter},
+			}, len(mock.mapItem) >= i)
+			i++
+			if done {
+				return nil
+			}
+		}
+		err = nil
+	}
+	return err
+}
+
+func Test_Find_All(t *testing.T) {
+	mock := createMock()
+	repo := NewStringSSMParameterStoreRepo(testPath, mock)
+
+	items, err := repo.FindAll()
+
+	if err != nil {
+		t.Errorf("Expected nil but found error: %+s", err)
+	}
+	if items != nil {
+		t.Error("items should not be nil")
+	}
+	for key, element := range mock.mapItem {
+		item := repository.KeyValuePair{
+			Key:   key,
+			Value: element,
+		}
+		if !contains(items, item) {
+			t.Errorf("Did not find %+v in items slice %+v", item, items)
+		}
+	}
+}
+
+func Test_Find__All_Wrong_Path(t *testing.T) {
+	repo := NewStringSSMParameterStoreRepo("wrongPath", createMock())
+
+	items, err := repo.FindAll()
+
+	if err == nil {
+		t.Error("Error should not be nil")
+	}
+	if items != nil {
+		t.Errorf("Items should be nil but found %+v", items)
+	}
 }
 
 func Test_Save(t *testing.T) {
@@ -94,6 +156,31 @@ func Test_Save_And_Find_String(t *testing.T) {
 	repo := NewStringSSMParameterStoreRepo(testPath, createMock())
 	addedTestKey := "addedTestKey"
 	addedTestValue := "addedTestValue"
+
+	repo.Save(addedTestKey, addedTestValue)
+	result, err := repo.Find(addedTestKey)
+
+	if err != nil {
+		t.Errorf("Error was not nil %+s", err)
+	}
+	if result.Value != addedTestValue {
+		t.Errorf("Expected %s but found %s", addedTestValue, result.Value)
+	}
+}
+
+func Test_Save_And_Find(t *testing.T) {
+	addedTestKey := "addedTestKey"
+	addedTestValue := MockItem{
+		MockString: "Test",
+	}
+	mock := mockSSM{
+		mapItem: map[string]interface{}{
+			testPath + testKey: addedTestValue,
+		},
+		path: testPath,
+	}
+
+	repo := NewSSMParameterStoreRepo(testPath, &mock, MockItem{})
 
 	repo.Save(addedTestKey, addedTestValue)
 	result, err := repo.Find(addedTestKey)
@@ -158,4 +245,13 @@ func Test_Find_Wrong_Path(t *testing.T) {
 	if value != empty {
 		t.Errorf("Value should be empty but it is %+s", value)
 	}
+}
+
+func contains(s []repository.KeyValuePair, e repository.KeyValuePair) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
