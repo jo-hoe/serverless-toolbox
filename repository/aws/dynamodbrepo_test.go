@@ -1,4 +1,4 @@
-package repository
+package aws
 
 import (
 	"encoding/json"
@@ -12,6 +12,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/jo-hoe/gocommon/repository"
 )
 
 const testTableName = "testTable"
@@ -96,7 +97,7 @@ func TestDynamoDBSave(t *testing.T) {
 	checkError(err, t)
 	actual, err := repo.Find(testKey)
 
-	expected := KeyValuePair{
+	expected := repository.KeyValuePair{
 		Key:   testKey,
 		Value: mockedItem,
 	}

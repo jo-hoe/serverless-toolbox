@@ -123,3 +123,15 @@ func TestInMemoryRepoFindInvalid(t *testing.T) {
 		t.Errorf("Error is nil although Find was called with an invalid value")
 	}
 }
+
+func checkError(err error, t *testing.T) {
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func checkFailure(err error, t *testing.T) {
+	if err == nil {
+		t.Error(err)
+	}
+}

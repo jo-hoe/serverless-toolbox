@@ -1,4 +1,4 @@
-package repository
+package aws
 
 import (
 	"encoding/json"
@@ -11,27 +11,12 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/jo-hoe/gocommon/repository"
 )
 
 const keyName = "key"
 const valueName = "value"
 
-// StoreItem converts a json string into the struct
-//
-// Example:
-// For the struct
-// type Person struct {
-// 	Name string
-// }
-//
-// The ToStruct function looks like:
-// func (person *Person) ToStruct(jsonString string) (interface{}, error) {
-//	err := json.Unmarshal([]byte(jsonString), &person)
-//	return person, err
-// }
-type StoreItem interface {
-	ToStruct(jsonString string) (interface{}, error)
-}
 
 // DynamoDBRepo stores all entities dynamo db
 type DynamoDBRepo struct {
@@ -96,12 +81,12 @@ func NewDynamoDBRepo(config *aws.Config, tableName string, toStruct func(jsonStr
 }
 
 // Save one item
-func (repo *DynamoDBRepo) Save(key string, in interface{}) (KeyValuePair, error) {
+func (repo *DynamoDBRepo) Save(key string, in interface{}) (repository.KeyValuePair, error) {
 	repo.mutex.RLock()
 	defer repo.mutex.RUnlock()
 
 	// converting item to storeable item
-	keyValuePair := KeyValuePair{
+	keyValuePair := repository.KeyValuePair{
 		Key:   key,
 		Value: repo.toJSON(in),
 	}
@@ -129,7 +114,7 @@ func (repo *DynamoDBRepo) Save(key string, in interface{}) (KeyValuePair, error)
 }
 
 // FindAll items
-func (repo *DynamoDBRepo) FindAll() ([]KeyValuePair, error) {
+func (repo *DynamoDBRepo) FindAll() ([]repository.KeyValuePair, error) {
 	repo.mutex.RLock()
 	defer repo.mutex.RUnlock()
 	params := &dynamodb.ScanInput{
@@ -138,15 +123,15 @@ func (repo *DynamoDBRepo) FindAll() ([]KeyValuePair, error) {
 
 	result, err := repo.connection.Scan(params)
 	if err != nil {
-		return []KeyValuePair{}, err
+		return []repository.KeyValuePair{}, err
 	}
 
-	items := []KeyValuePair{}
+	items := []repository.KeyValuePair{}
 
 	// Unmarshal the Items field in the result value to the Item Go type.
 	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &items)
 	if err != nil {
-		return []KeyValuePair{}, err
+		return []repository.KeyValuePair{}, err
 	}
 
 	// convert string into struct
@@ -183,7 +168,7 @@ func (repo *DynamoDBRepo) Delete(key string) error {
 }
 
 // Find retrieves and item from the repository
-func (repo *DynamoDBRepo) Find(key string) (KeyValuePair, error) {
+func (repo *DynamoDBRepo) Find(key string) (repository.KeyValuePair, error) {
 	repo.mutex.RLock()
 	defer repo.mutex.RUnlock()
 
@@ -203,7 +188,7 @@ func (repo *DynamoDBRepo) Find(key string) (KeyValuePair, error) {
 		return getEmptyKeyValuePair(), err
 	}
 
-	keyValuePair := KeyValuePair{}
+	keyValuePair := repository.KeyValuePair{}
 	err = dynamodbattribute.UnmarshalMap(result.Item, &keyValuePair)
 	if err != nil {
 		return getEmptyKeyValuePair(), err
@@ -282,8 +267,8 @@ func isConnected(connection *dynamodb.DynamoDB) bool {
 	}
 }
 
-func getEmptyKeyValuePair() KeyValuePair {
-	return KeyValuePair{
+func getEmptyKeyValuePair() repository.KeyValuePair {
+	return repository.KeyValuePair{
 		Key:   "",
 		Value: nil,
 	}
