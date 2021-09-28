@@ -118,7 +118,7 @@ func (repo *SSMParameterStoreRepo) Find(key string) (repository.KeyValuePair, er
 	return result, err
 }
 
-func CreateSSMSession(region string) ssmiface.SSMAPI {
+func NewSSMSession(region string) ssmiface.SSMAPI {
 	sess, err := session.NewSessionWithOptions(session.Options{
 		Config:            aws.Config{Region: aws.String(region)},
 		SharedConfigState: session.SharedConfigEnable,
