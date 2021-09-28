@@ -94,7 +94,7 @@ func (mock *mockSSM) GetParametersByPathPages(input *ssm.GetParametersByPathInpu
 	return err
 }
 
-func Test_mhm(t *testing.T) {
+func Test_NewSSMSession(t *testing.T) {
 	session := NewSSMSession("")
 	if session == nil {
 		t.Error("Session should not be nil")
