@@ -164,7 +164,11 @@ func Test_Save_And_Find_String(t *testing.T) {
 	addedTestKey := "addedTestKey"
 	addedTestValue := "addedTestValue"
 
-	repo.Save(addedTestKey, addedTestValue)
+	_, err := repo.Save(addedTestKey, addedTestValue)
+	if err != nil {
+		t.Errorf("Error was not nil %+s", err)
+	}
+
 	result, err := repo.Find(addedTestKey)
 
 	if err != nil {
@@ -189,7 +193,11 @@ func Test_Save_And_Find(t *testing.T) {
 
 	repo := NewSSMParameterStoreRepo(testPath, &mock, MockItem{})
 
-	repo.Save(addedTestKey, addedTestValue)
+	_, err := repo.Save(addedTestKey, addedTestValue)
+	if err != nil {
+		t.Errorf("Error was not nil %+s", err)
+	}
+
 	result, err := repo.Find(addedTestKey)
 
 	if err != nil {
