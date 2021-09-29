@@ -1,12 +1,8 @@
 package aws
 
 import (
-	"errors"
-	"fmt"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/service/ssm"
-	"github.com/aws/aws-sdk-go/service/ssm/ssmiface"
 	"github.com/jo-hoe/gocommon/repository"
 )
 
@@ -14,84 +10,11 @@ var testValue = "testValue"
 var testKey = "testKey"
 var testPath = "testPath/"
 
-// for mocking suggestion, refer to https://docs.aws.amazon.com/sdk-for-go/api/service/ssm/ssmiface/
-// Define a mock struct to be used in your unit tests.
-type mockSSM struct {
-	ssmiface.SSMAPI
-	mapItem map[string]interface{}
-	path    string
-}
-
-func NewMockSSM(path string, mapItem map[string]interface{}) *mockSSM {
-	return &mockSSM{
-		mapItem: mapItem,
-		path:    path,
-	}
-}
-
 func createMock() *mockSSM {
 	return NewMockSSM(testPath, map[string]interface{}{
 		testPath + testKey:       testValue,
 		testPath + testKey + "2": testValue + "2",
 	})
-}
-
-func (mock *mockSSM) PutParameter(input *ssm.PutParameterInput) (*ssm.PutParameterOutput, error) {
-	mock.mapItem[*input.Name] = *input.Value
-	return nil, nil
-}
-
-func (mock *mockSSM) GetParameter(input *ssm.GetParameterInput) (*ssm.GetParameterOutput, error) {
-	result := new(ssm.GetParameterOutput)
-	result.Parameter = new(ssm.Parameter)
-	err := errors.New("error")
-
-	if val, ok := mock.mapItem[*input.Name]; ok {
-		value := fmt.Sprintf("%v", val)
-		result.Parameter.Value = &value
-		err = nil
-	} else {
-		result = nil
-	}
-
-	return result, err
-}
-
-func (mock *mockSSM) DeleteParameter(input *ssm.DeleteParameterInput) (*ssm.DeleteParameterOutput, error) {
-	result := new(ssm.DeleteParameterOutput)
-	err := errors.New("error")
-
-	if _, ok := mock.mapItem[*input.Name]; ok {
-		err = nil
-	} else {
-		result = nil
-	}
-
-	return result, err
-}
-
-func (mock *mockSSM) GetParametersByPathPages(input *ssm.GetParametersByPathInput, fn func(*ssm.GetParametersByPathOutput, bool) bool) error {
-	err := errors.New("error")
-
-	if *input.Path == mock.path {
-		i := 0
-		for key, element := range mock.mapItem {
-			result := new(ssm.GetParameterOutput)
-			result.Parameter = new(ssm.Parameter)
-			result.Parameter.Name = &key
-			value := fmt.Sprintf("%v", element)
-			result.Parameter.Value = &value
-			done := fn(&ssm.GetParametersByPathOutput{
-				Parameters: []*ssm.Parameter{result.Parameter},
-			}, len(mock.mapItem) >= i)
-			i++
-			if done {
-				return nil
-			}
-		}
-		err = nil
-	}
-	return err
 }
 
 func Test_NewSSMSession(t *testing.T) {
@@ -101,7 +24,7 @@ func Test_NewSSMSession(t *testing.T) {
 	}
 }
 
-func Test_Find_All(t *testing.T) {
+func Test_Find_All_Strings(t *testing.T) {
 	mock := createMock()
 	repo := NewStringSSMParameterStoreRepo(testPath, mock)
 
@@ -110,12 +33,15 @@ func Test_Find_All(t *testing.T) {
 	if err != nil {
 		t.Errorf("Expected nil but found error: %+s", err)
 	}
-	if items != nil {
+	if items == nil {
 		t.Error("items should not be nil")
+	}
+	if len(items) != len(mock.mapItem) {
+		t.Errorf("Expected %d items but found %d", len(mock.mapItem), len(items))
 	}
 	for key, element := range mock.mapItem {
 		item := repository.KeyValuePair{
-			Key:   key,
+			Key:   key[:len(testPath)-1],
 			Value: element,
 		}
 		if !contains(items, item) {
@@ -124,7 +50,7 @@ func Test_Find_All(t *testing.T) {
 	}
 }
 
-func Test_Find__All_Wrong_Path(t *testing.T) {
+func Test_Find_All_Wrong_Path(t *testing.T) {
 	repo := NewStringSSMParameterStoreRepo("wrongPath", createMock())
 
 	items, err := repo.FindAll()
