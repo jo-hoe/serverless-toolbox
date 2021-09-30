@@ -85,6 +85,23 @@ func Test_Save(t *testing.T) {
 	}
 }
 
+func Test_Save_Twice(t *testing.T) {
+	repo := NewStringSSMParameterStoreRepo(testPath, createMock())
+	addedTestKey := "addedTestKey"
+	addedTestValue := "addedTestValue"
+
+	repo.Save(addedTestKey, addedTestValue)
+	result, err := repo.Save(addedTestKey, addedTestValue+"mod")
+
+	if err == nil {
+		t.Error("Expected error but found non.")
+	}
+	empty := repository.KeyValuePair{}
+	if result != empty {
+		t.Error("Result was empty")
+	}
+}
+
 func Test_Save_And_Find_String(t *testing.T) {
 	repo := NewStringSSMParameterStoreRepo(testPath, createMock())
 	addedTestKey := "addedTestKey"

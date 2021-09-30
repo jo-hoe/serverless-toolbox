@@ -30,7 +30,7 @@ func NewSSMParameterStoreRepo(path string, ssmClient ssmiface.SSMAPI, itemTempla
 	}
 }
 
-// NewStringSSMParameterStoreRepo creates a new instance of the repository 
+// NewStringSSMParameterStoreRepo creates a new instance of the repository
 // The repo stores the string without conversion.
 func NewStringSSMParameterStoreRepo(path string, ssmClient ssmiface.SSMAPI) *SSMParameterStoreRepo {
 	return &SSMParameterStoreRepo{
@@ -77,7 +77,7 @@ func (repo *SSMParameterStoreRepo) Save(key string, in interface{}) (repository.
 		Name:      aws.String(repo.path + key),
 		Value:     aws.String(repo.toJSON(in)),
 		Type:      aws.String("SecureString"),
-		Overwrite: aws.Bool(true),
+		Overwrite: aws.Bool(false),
 	})
 
 	if err == nil {
@@ -136,7 +136,7 @@ func NewSSMSession(region string) ssmiface.SSMAPI {
 // no conversion will take place and string is returned instead
 func (repo *SSMParameterStoreRepo) toJSON(in interface{}) string {
 	// check if input is pure string
-	if _, ok := in.(string); ok { 
+	if _, ok := in.(string); ok {
 		return fmt.Sprintf("%v", in) // do no conversion if input is pure string
 	} else {
 		byteArray, _ := json.Marshal(in)

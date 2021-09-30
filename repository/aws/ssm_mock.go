@@ -24,8 +24,12 @@ func NewMockSSM(path string, mapItem map[string]interface{}) *mockSSM {
 }
 
 func (mock *mockSSM) PutParameter(input *ssm.PutParameterInput) (*ssm.PutParameterOutput, error) {
-	mock.mapItem[*input.Name] = *input.Value
-	return nil, nil
+	if _, ok := mock.mapItem[*input.Name]; ok {
+		return nil, errors.New("error")
+	} else {
+		mock.mapItem[*input.Name] = *input.Value
+		return new(ssm.PutParameterOutput), nil
+	}
 }
 
 func (mock *mockSSM) GetParameter(input *ssm.GetParameterInput) (*ssm.GetParameterOutput, error) {

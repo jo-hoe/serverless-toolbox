@@ -262,7 +262,7 @@ func isConnected(connection *dynamodb.DynamoDB) bool {
 	select {
 	case result := <-timeoutChannel:
 		return result
-	case <-time.After(8 * time.Second):
+	case <-time.After(3 * time.Second):
 		return false
 	}
 }
