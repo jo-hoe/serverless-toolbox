@@ -1,8 +1,8 @@
-package aws
+package serialization
 
 import "encoding/json"
 
-// StoreItem converts a json string into the struct
+// Serializable converts a json string into the struct
 //
 // Example:
 // For the struct
@@ -15,7 +15,7 @@ import "encoding/json"
 //	err := json.Unmarshal([]byte(jsonString), &person)
 //	return person, err
 // }
-type StoreItem interface {
+type Serializable interface {
 	ToStruct(jsonString string) (interface{}, error)
 }
 

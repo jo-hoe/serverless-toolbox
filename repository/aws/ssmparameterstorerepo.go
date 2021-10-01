@@ -1,8 +1,6 @@
 package aws
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -10,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ssm"
 	"github.com/aws/aws-sdk-go/service/ssm/ssmiface"
 	"github.com/jo-hoe/gocommon/repository"
+	"github.com/jo-hoe/gocommon/serialization"
 )
 
 // SSMParameterStoreRepo stores entries in AWS Parameter Store.
@@ -22,7 +21,7 @@ type SSMParameterStoreRepo struct {
 
 // NewSSMParameterStoreRepo creates a new instance of the repository
 // The repo can take structs and store them in serialized form.
-func NewSSMParameterStoreRepo(path string, ssmClient ssmiface.SSMAPI, itemTemplate StoreItem) *SSMParameterStoreRepo {
+func NewSSMParameterStoreRepo(path string, ssmClient ssmiface.SSMAPI, itemTemplate serialization.Serializable) *SSMParameterStoreRepo {
 	return &SSMParameterStoreRepo{
 		path:             path,
 		ssmClient:        ssmClient,
@@ -73,9 +72,14 @@ func (repo *SSMParameterStoreRepo) FindAll() ([]repository.KeyValuePair, error) 
 func (repo *SSMParameterStoreRepo) Save(key string, in interface{}) (repository.KeyValuePair, error) {
 	result := repository.KeyValuePair{}
 
-	_, err := repo.ssmClient.PutParameter(&ssm.PutParameterInput{
+	serialized, err := serialization.ToJSON(in)
+	if err != nil {
+		return result, err
+	}
+
+	_, err = repo.ssmClient.PutParameter(&ssm.PutParameterInput{
 		Name:      aws.String(repo.path + key),
-		Value:     aws.String(repo.toJSON(in)),
+		Value:     aws.String(serialized),
 		Type:      aws.String("SecureString"),
 		Overwrite: aws.Bool(false),
 	})
@@ -130,16 +134,4 @@ func NewSSMSession(region string) ssmiface.SSMAPI {
 	}
 
 	return ssm.New(sess, aws.NewConfig().WithRegion(region))
-}
-
-// Converts a struct into a json string. If input is a string and not a struct
-// no conversion will take place and string is returned instead
-func (repo *SSMParameterStoreRepo) toJSON(in interface{}) string {
-	// check if input is pure string
-	if _, ok := in.(string); ok {
-		return fmt.Sprintf("%v", in) // do no conversion if input is pure string
-	} else {
-		byteArray, _ := json.Marshal(in)
-		return string(byteArray)
-	}
 }

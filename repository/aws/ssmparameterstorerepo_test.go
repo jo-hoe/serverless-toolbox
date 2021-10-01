@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/jo-hoe/gocommon/repository"
+	"github.com/jo-hoe/gocommon/serialization"
 )
 
 var testValue = "testValue"
@@ -90,7 +91,10 @@ func Test_Save_Twice(t *testing.T) {
 	addedTestKey := "addedTestKey"
 	addedTestValue := "addedTestValue"
 
-	repo.Save(addedTestKey, addedTestValue)
+	_, err := repo.Save(addedTestKey, addedTestValue)
+	if err != nil {
+		t.Errorf("Expected nil but found error: %+s", err)
+	}
 	result, err := repo.Save(addedTestKey, addedTestValue+"mod")
 
 	if err == nil {
@@ -124,7 +128,7 @@ func Test_Save_And_Find_String(t *testing.T) {
 
 func Test_Save_And_Find(t *testing.T) {
 	addedTestKey := "addedTestKey"
-	addedTestValue := MockItem{
+	addedTestValue := serialization.MockItem{
 		MockString: "Test",
 	}
 	mock := mockSSM{
@@ -134,7 +138,7 @@ func Test_Save_And_Find(t *testing.T) {
 		path: testPath,
 	}
 
-	repo := NewSSMParameterStoreRepo(testPath, &mock, MockItem{})
+	repo := NewSSMParameterStoreRepo(testPath, &mock, serialization.MockItem{})
 
 	_, err := repo.Save(addedTestKey, addedTestValue)
 	if err != nil {

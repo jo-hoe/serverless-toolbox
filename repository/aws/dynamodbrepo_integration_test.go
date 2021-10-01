@@ -12,17 +12,18 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/jo-hoe/gocommon/repository"
+	"github.com/jo-hoe/gocommon/serialization"
 )
 
 const testTableName = "testTable"
 
 var defaultConfig = aws.NewConfig().WithRegion("us-west-2").WithEndpoint("http://localhost:8000")
 
-var mockedItem = MockItem{
+var mockedItem = serialization.MockItem{
 	MockString: "mock",
 }
 
-var nestedMockedItem = NestedMockItem{
+var nestedMockedItem = serialization.NestedMockItem{
 	NestedItem: mockedItem,
 }
 
@@ -50,7 +51,7 @@ func cleanup() {
 func TestNewDynamoDBRepo(t *testing.T) {
 	defer cleanup()
 	skipTestIfNoConnectionAvaiable(t)
-	mockItem := MockItem{}
+	mockItem := serialization.MockItem{}
 	repo := NewDynamoDBRepo(defaultConfig, testTableName, mockItem.ToStruct)
 
 	if repo == nil {
@@ -249,12 +250,12 @@ func TestDynamoDBFindInvalid(t *testing.T) {
 
 func createLocalConnectionMockItems(t *testing.T) *DynamoDBRepo {
 	skipTestIfNoConnectionAvaiable(t)
-	return NewStoreItemDynamoDBRepo(defaultConfig, testTableName, MockItem{})
+	return NewStoreItemDynamoDBRepo(defaultConfig, testTableName, serialization.MockItem{})
 }
 
 func createLocalConnectionNestedMockItems(t *testing.T) *DynamoDBRepo {
 	skipTestIfNoConnectionAvaiable(t)
-	return NewStoreItemDynamoDBRepo(defaultConfig, testTableName, NestedMockItem{})
+	return NewStoreItemDynamoDBRepo(defaultConfig, testTableName, serialization.NestedMockItem{})
 }
 
 func skipTestIfNoConnectionAvaiable(t *testing.T) {

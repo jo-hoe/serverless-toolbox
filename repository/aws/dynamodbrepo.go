@@ -1,7 +1,6 @@
 package aws
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"sync"
@@ -12,11 +11,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/jo-hoe/gocommon/repository"
+	"github.com/jo-hoe/gocommon/serialization"
 )
 
 const keyName = "key"
 const valueName = "value"
-
 
 // DynamoDBRepo stores all entities dynamo db
 type DynamoDBRepo struct {
@@ -34,7 +33,7 @@ func GetConnection(config *aws.Config) *dynamodb.DynamoDB {
 }
 
 // NewStoreItemDynamoDBRepo creates a DynamoDBRepo and checks if the table exists. If not it will be created.
-func NewStoreItemDynamoDBRepo(config *aws.Config, tableName string, itemTemplate StoreItem) *DynamoDBRepo {
+func NewStoreItemDynamoDBRepo(config *aws.Config, tableName string, itemTemplate serialization.Serializable) *DynamoDBRepo {
 	connection := GetConnection(config)
 	exists, _ := doesTableExist(connection, tableName)
 	if !exists {
@@ -86,9 +85,13 @@ func (repo *DynamoDBRepo) Save(key string, in interface{}) (repository.KeyValueP
 	defer repo.mutex.RUnlock()
 
 	// converting item to storeable item
+	serialized, err := serialization.ToJSON(in)
+	if err != nil {
+		return getEmptyKeyValuePair(), err
+	}
 	keyValuePair := repository.KeyValuePair{
 		Key:   key,
-		Value: repo.toJSON(in),
+		Value: serialized,
 	}
 
 	av, err := dynamodbattribute.MarshalMap(keyValuePair)
@@ -272,9 +275,4 @@ func getEmptyKeyValuePair() repository.KeyValuePair {
 		Key:   "",
 		Value: nil,
 	}
-}
-
-func (repo *DynamoDBRepo) toJSON(in interface{}) string {
-	byteArray, _ := json.Marshal(in)
-	return string(byteArray)
 }
