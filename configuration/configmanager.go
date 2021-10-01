@@ -5,8 +5,8 @@ type ReadOnlyConfigProvider interface {
 	GetConfig(configKey string) (string, error)
 }
 
-// ConfigReaderWriter retrieve configurations content
-type ConfigReaderWriter interface {
+// ConfigReaderManager retrieve configurations content
+type ConfigReaderManager interface {
 	ReadOnlyConfigProvider
 	SetConfig(configKey string, configValue interface{}) error
 }
