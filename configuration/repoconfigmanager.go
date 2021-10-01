@@ -27,6 +27,13 @@ func (repositoryConfigProvider *RepositoryConfigProvider) GetConfig(configKey st
 
 // SetConfig stores a config in string form.
 func (repositoryConfigProvider *RepositoryConfigProvider) SetConfig(configKey string, configValue interface{}) error {
-	_, err := repositoryConfigProvider.repo.Save(configKey, configValue)
+	_, err := repositoryConfigProvider.repo.Find(configKey)
+	if err == nil {
+		err = repositoryConfigProvider.repo.Delete(configKey)
+		if err != nil {
+			return err
+		}
+	}
+	_, err = repositoryConfigProvider.repo.Save(configKey, configValue)
 	return err
 }

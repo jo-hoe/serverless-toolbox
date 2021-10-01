@@ -31,6 +31,32 @@ func TestRepositoryConfigProviderSaveConfig(t *testing.T) {
 	}
 }
 
+func TestRepositoryConfigProviderSaveConfig_Twice(t *testing.T) {
+	repo := repository.NewInMemoryRepo()
+	provider := NewRepositoryConfigProvider(repo)
+	err := provider.SetConfig(testKey, "someValue")	
+	if err != nil {
+		t.Errorf("Expected nil but found error: %+s", err)
+	}
+	err = provider.SetConfig(testKey, testValue)
+	if err != nil {
+		t.Errorf("Expected nil but found error: %+s", err)
+	}
+
+	actual, err := repo.Find(testKey)
+	if err != nil {
+		t.Errorf("Expected nil but found error: %+s", err)
+	}
+
+	expected := repository.KeyValuePair{
+		Key: testKey,
+		Value: testValue,
+	}
+	if actual != expected {
+		t.Errorf("Expected %v but retrieved %v", expected, actual)
+	}
+}
+
 func TestRepositoryConfigProviderGetConfig(t *testing.T) {
 	repo := repository.NewInMemoryRepo()
 	_, err := repo.Save(testKey, testValue)
@@ -64,8 +90,6 @@ func TestRepositoryConfigProviderGetEmptyConfig(t *testing.T) {
 }
 
 func TestRepositoryConfigProviderResultGetConfig(t *testing.T) {
-	testKey := "testKey"
-	testValue := "testValue"
 	repo := repository.NewInMemoryRepo()
 	_, err := repo.Save(testKey, testValue)
 	if err != nil {
