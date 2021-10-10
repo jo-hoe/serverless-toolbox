@@ -92,6 +92,9 @@ func (repo *SSMParameterStoreRepo) Save(key string, in interface{}) (repository.
 	return result, err
 }
 
+// Only put a variable with the same name >=30 sec after deletion
+// Not sure why, but this hint is documented in the AWS docu
+// see https://docs.aws.amazon.com/systems-manager/latest/APIReference/API_DeleteParameters.html
 func (repo *SSMParameterStoreRepo) Delete(key string) error {
 	input := &ssm.DeleteParameterInput{
 		Name: aws.String(repo.path + key),
