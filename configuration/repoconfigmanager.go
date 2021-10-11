@@ -1,6 +1,8 @@
 package configuration
 
 import (
+	"fmt"
+
 	"github.com/jo-hoe/gocommon/repository"
 )
 
@@ -21,7 +23,7 @@ func (repositoryConfigProvider *RepositoryConfigProvider) GetConfig(configKey st
 	if err == nil {
 		return result.Value, err
 	} else {
-		return nil, err
+		return nil, fmt.Errorf("could not find configuration for key '%s' error: '%v'", configKey, err)
 	}
 }
 
