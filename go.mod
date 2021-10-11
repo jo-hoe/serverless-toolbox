@@ -3,7 +3,7 @@ module github.com/jo-hoe/gocommon
 go 1.17
 
 require (
-	github.com/aws/aws-sdk-go v1.40.49
+	github.com/aws/aws-sdk-go v1.41.0
 	github.com/google/uuid v1.3.0
 )
 
