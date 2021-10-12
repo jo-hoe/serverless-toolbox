@@ -108,15 +108,15 @@ func (repo *DynamoDBRepo) save(key string, in interface{}, overwrite bool) (repo
 		return getEmptyKeyValuePair(), err
 	}
 
-	input := &dynamodb.PutItemInput{}
+	input := dynamodb.PutItemInput{}
 	if overwrite {
-		input = &dynamodb.PutItemInput{
+		input = dynamodb.PutItemInput{
 			Item:      av,
 			TableName: aws.String(repo.tableName),
 		}
 
 	} else {
-		input = &dynamodb.PutItemInput{
+		input = dynamodb.PutItemInput{
 			Item:      av,
 			TableName: aws.String(repo.tableName),
 			ExpressionAttributeNames: map[string]*string{
@@ -125,7 +125,7 @@ func (repo *DynamoDBRepo) save(key string, in interface{}, overwrite bool) (repo
 			ConditionExpression: aws.String("attribute_not_exists(#" + keyName + ")"),
 		}
 	}
-	_, err = repo.connection.PutItem(input)
+	_, err = repo.connection.PutItem(&input)
 
 	if err != nil {
 		return getEmptyKeyValuePair(), err
