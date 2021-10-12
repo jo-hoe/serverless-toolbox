@@ -20,13 +20,23 @@ func NewInMemoryRepo() *InMemoryRepo {
 
 // Save one item
 func (repo *InMemoryRepo) Save(key string, in interface{}) (KeyValuePair, error) {
+	return repo.save(key, in, false)
+}
+
+func (repo *InMemoryRepo) Overwrite(key string, in interface{}) (KeyValuePair, error) {
+	return repo.save(key, in, true)
+}
+
+func (repo *InMemoryRepo) save(key string, in interface{}, overwrite bool) (KeyValuePair, error) {
 	repo.mutex.RLock()
 	defer repo.mutex.RUnlock()
 
 	result := KeyValuePair{}
-	_, ok := repo.mapStore[key]
-	if ok {
-		return result, fmt.Errorf("key %s already exists", key)
+	if !overwrite {
+		_, ok := repo.mapStore[key]
+		if ok {
+			return result, fmt.Errorf("key %s already exists", key)
+		}
 	}
 	repo.mapStore[key] = in
 	result.Key = key

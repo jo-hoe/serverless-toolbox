@@ -11,7 +11,10 @@ type KeyValuePair struct {
 // KeyValueRepo is a generic repository which accepts values of type interface
 type KeyValueRepo interface {
 	FindAll() ([]KeyValuePair, error)
+	// saves an item, if the key of the item already exists an error is returned
 	Save(key string, in interface{}) (KeyValuePair, error)
+	// saves an item, if the key of the item already exists it is overwritten
+	Overwrite(key string, in interface{}) (KeyValuePair, error)
 	Delete(key string) error
 	Find(key string) (KeyValuePair, error)
 }

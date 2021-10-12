@@ -31,6 +31,11 @@ func (repo *HashKeyValueRepo) Save(in interface{}) (KeyValuePair, error) {
 	return repo.wrappedRepo.Save(ToKey(in), in)
 }
 
+// Overwrite calls function of wrapped repository
+func (repo *HashKeyValueRepo) Overwrite(in interface{}) (KeyValuePair, error) {
+	return repo.wrappedRepo.Overwrite(ToKey(in), in)
+}
+
 // Delete calls function of wrapped repository
 func (repo *HashKeyValueRepo) Delete(key string) error {
 	return repo.wrappedRepo.Delete(key)

@@ -106,6 +106,26 @@ func Test_Save_Twice(t *testing.T) {
 	}
 }
 
+func Test_Overwrite(t *testing.T) {
+	repo := NewStringSSMParameterStoreRepo(testPath, createMock())
+	addedTestKey := "addedTestKey"
+	addedTestValue := "addedTestValue"
+
+	_, err := repo.Overwrite(addedTestKey, addedTestValue)
+	if err != nil {
+		t.Errorf("Expected nil but found error: %+s", err)
+	}
+	updatedItem := addedTestValue + "mod"
+	result, err := repo.Overwrite(addedTestKey, updatedItem)
+
+	if err != nil {
+		t.Errorf("unexpected error %v", err)
+	}
+	if result.Value != updatedItem {
+		t.Errorf("excepted %v but found %v", updatedItem, result.Value)
+	}
+}
+
 func Test_Save_And_Find_String(t *testing.T) {
 	repo := NewStringSSMParameterStoreRepo(testPath, createMock())
 	addedTestKey := "addedTestKey"

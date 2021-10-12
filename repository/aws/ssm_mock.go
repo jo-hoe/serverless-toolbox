@@ -24,7 +24,8 @@ func NewMockSSM(path string, mapItem map[string]interface{}) *mockSSM {
 }
 
 func (mock *mockSSM) PutParameter(input *ssm.PutParameterInput) (*ssm.PutParameterOutput, error) {
-	if _, ok := mock.mapItem[*input.Name]; ok {
+	if _, ok := mock.mapItem[*input.Name]; ok && !*input.Overwrite {
+		// return an error if overwrite is not on and item is already in mock
 		return nil, errors.New("error")
 	} else {
 		mock.mapItem[*input.Name] = *input.Value

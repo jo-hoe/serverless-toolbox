@@ -80,7 +80,16 @@ func NewDynamoDBRepo(config *aws.Config, tableName string, toStruct func(jsonStr
 }
 
 // Save one item
+func (repo *DynamoDBRepo) Overwrite(key string, in interface{}) (repository.KeyValuePair, error) {
+	return repo.save(key, in, true)
+}
+
+// Save one item
 func (repo *DynamoDBRepo) Save(key string, in interface{}) (repository.KeyValuePair, error) {
+	return repo.save(key, in, false)
+}
+
+func (repo *DynamoDBRepo) save(key string, in interface{}, overwrite bool) (repository.KeyValuePair, error) {
 	repo.mutex.RLock()
 	defer repo.mutex.RUnlock()
 
@@ -99,13 +108,22 @@ func (repo *DynamoDBRepo) Save(key string, in interface{}) (repository.KeyValueP
 		return getEmptyKeyValuePair(), err
 	}
 
-	input := &dynamodb.PutItemInput{
-		Item:      av,
-		TableName: aws.String(repo.tableName),
-		ExpressionAttributeNames: map[string]*string{
-			"#" + keyName: aws.String(keyName),
-		},
-		ConditionExpression: aws.String("attribute_not_exists(#" + keyName + ")"),
+	input := &dynamodb.PutItemInput{}
+	if overwrite {
+		input = &dynamodb.PutItemInput{
+			Item:      av,
+			TableName: aws.String(repo.tableName),
+		}
+
+	} else {
+		input = &dynamodb.PutItemInput{
+			Item:      av,
+			TableName: aws.String(repo.tableName),
+			ExpressionAttributeNames: map[string]*string{
+				"#" + keyName: aws.String(keyName),
+			},
+			ConditionExpression: aws.String("attribute_not_exists(#" + keyName + ")"),
+		}
 	}
 	_, err = repo.connection.PutItem(input)
 

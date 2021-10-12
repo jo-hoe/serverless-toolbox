@@ -2,6 +2,7 @@ package aws
 
 import (
 	"log"
+	"sync"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -14,6 +15,7 @@ import (
 // SSMParameterStoreRepo stores entries in AWS Parameter Store.
 // Values will always be stored encrypted
 type SSMParameterStoreRepo struct {
+	mutex            sync.RWMutex
 	path             string
 	ssmClient        ssmiface.SSMAPI
 	toStructFunction func(jsonString string) (interface{}, error)
@@ -43,6 +45,9 @@ func NewStringSSMParameterStoreRepo(path string, ssmClient ssmiface.SSMAPI) *SSM
 }
 
 func (repo *SSMParameterStoreRepo) FindAll() ([]repository.KeyValuePair, error) {
+	repo.mutex.RLock()
+	defer repo.mutex.RUnlock()
+
 	results := []repository.KeyValuePair{}
 
 	getParametersByPathInput := &ssm.GetParametersByPathInput{
@@ -70,6 +75,17 @@ func (repo *SSMParameterStoreRepo) FindAll() ([]repository.KeyValuePair, error) 
 }
 
 func (repo *SSMParameterStoreRepo) Save(key string, in interface{}) (repository.KeyValuePair, error) {
+	return repo.save(key, in, false)
+}
+
+func (repo *SSMParameterStoreRepo) Overwrite(key string, in interface{}) (repository.KeyValuePair, error) {
+	return repo.save(key, in, true)
+}
+
+func (repo *SSMParameterStoreRepo) save(key string, in interface{}, overwrite bool) (repository.KeyValuePair, error) {
+	repo.mutex.RLock()
+	defer repo.mutex.RUnlock()
+
 	result := repository.KeyValuePair{}
 
 	serialized, err := serialization.ToJSON(in)
@@ -81,7 +97,7 @@ func (repo *SSMParameterStoreRepo) Save(key string, in interface{}) (repository.
 		Name:      aws.String(repo.path + key),
 		Value:     aws.String(serialized),
 		Type:      aws.String("SecureString"),
-		Overwrite: aws.Bool(false),
+		Overwrite: aws.Bool(overwrite),
 	})
 
 	if err == nil {
@@ -96,6 +112,9 @@ func (repo *SSMParameterStoreRepo) Save(key string, in interface{}) (repository.
 // Not sure why, but this hint is documented in the AWS docu
 // see https://docs.aws.amazon.com/systems-manager/latest/APIReference/API_DeleteParameters.html
 func (repo *SSMParameterStoreRepo) Delete(key string) error {
+	repo.mutex.RLock()
+	defer repo.mutex.RUnlock()
+
 	input := &ssm.DeleteParameterInput{
 		Name: aws.String(repo.path + key),
 	}
@@ -104,6 +123,9 @@ func (repo *SSMParameterStoreRepo) Delete(key string) error {
 }
 
 func (repo *SSMParameterStoreRepo) Find(key string) (repository.KeyValuePair, error) {
+	repo.mutex.RLock()
+	defer repo.mutex.RUnlock()
+
 	input := &ssm.GetParameterInput{
 		Name:           aws.String(repo.path + key),
 		WithDecryption: aws.Bool(true),

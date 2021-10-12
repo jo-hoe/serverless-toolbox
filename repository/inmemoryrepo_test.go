@@ -64,6 +64,21 @@ func TestInMemoryRepoSaveTwiceError(t *testing.T) {
 	}
 }
 
+func TestInMemoryRepoOverwrite(t *testing.T) {
+	repo := NewInMemoryRepo()
+
+	_, err := repo.Overwrite("samekey", mockInstance)
+	checkError(err, t)
+	item, err := repo.Overwrite("samekey", mockInstance)
+
+	if err != nil {
+		t.Errorf("did not expect an error %v", err)
+	}
+	if item.Value != mockInstance {
+		t.Errorf("expeted %+v but received %+v", mockInstance, err)
+	}
+}
+
 func TestInMemoryRepoSaveTwiceLength(t *testing.T) {
 	repo := NewInMemoryRepo()
 

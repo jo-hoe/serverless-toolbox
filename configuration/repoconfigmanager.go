@@ -30,13 +30,6 @@ func (repositoryConfigProvider *RepositoryConfigProvider) GetConfig(configKey st
 // SetConfig stores a config in string form. Function checks before is value persisted if it
 // is already present and removes it if this is the case before adding the new value.
 func (repositoryConfigProvider *RepositoryConfigProvider) SetConfig(configKey string, configValue interface{}) error {
-	_, err := repositoryConfigProvider.repo.Find(configKey)
-	if err == nil {
-		err = repositoryConfigProvider.repo.Delete(configKey)
-		if err != nil {
-			return err
-		}
-	}
-	_, err = repositoryConfigProvider.repo.Save(configKey, configValue)
+	_, err := repositoryConfigProvider.repo.Overwrite(configKey, configValue)
 	return err
 }

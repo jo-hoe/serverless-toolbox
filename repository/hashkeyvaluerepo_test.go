@@ -52,6 +52,18 @@ func TestHashKeyValueRepoContains(t *testing.T) {
 	}
 }
 
+func TestHashKeyValueRepoOverwrite(t *testing.T) {
+	repo := NewHashKeyValueRepo(&mockRepo{})
+
+	item := "a"
+	_, err := repo.Overwrite(item)
+	checkError(err, t)
+
+	if !repo.Contains(item) {
+		t.Errorf("Could not find %v", item)
+	}
+}
+
 func TestHashKeyValueRepoContainsValue(t *testing.T) {
 	repo := NewHashKeyValueRepo(&mockRepo{})
 
@@ -75,6 +87,11 @@ func (repo *mockRepo) FindAll() ([]KeyValuePair, error) {
 
 // Save calls function of wrapped repository
 func (repo *mockRepo) Save(key string, in interface{}) (KeyValuePair, error) {
+	return mockKeyValuePair, nil
+}
+
+// Save calls function of wrapped repository
+func (repo *mockRepo) Overwrite(key string, in interface{}) (KeyValuePair, error) {
 	return mockKeyValuePair, nil
 }
 

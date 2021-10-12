@@ -144,6 +144,23 @@ func TestDynamoDBSaveTwiceError(t *testing.T) {
 	}
 }
 
+func TestDynamoDBOverwrite(t *testing.T) {
+	defer cleanup()
+	repo := createLocalConnectionMockItems(t)
+
+	_, err := repo.Overwrite(t.Name(), mockedItem)
+	checkError(err, t)
+	item, err := repo.Overwrite(t.Name(), mockedItem)
+
+	if err != nil {
+		t.Errorf("Unexpected error %v", err)
+	}
+
+	if item.Value != mockedItem {
+		t.Errorf("Expected %+v but received %+v", mockedItem, item.Value)
+	}
+}
+
 func TestDynamoDBSaveTwiceLength(t *testing.T) {
 	defer cleanup()
 	repo := createLocalConnectionMockItems(t)
@@ -171,7 +188,7 @@ func TestDynamoDBSaveMultiple(t *testing.T) {
 	_, err := repo.Save(getRandomKey(), mockedItem)
 	checkError(err, t)
 	_, err = repo.Save(getRandomKey(), mockedItem)
-	checkFailure(err, t)
+	checkError(err, t)
 
 	items, _ := repo.FindAll()
 	count := len(items)
