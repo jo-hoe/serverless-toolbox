@@ -1,6 +1,6 @@
 # DynamoDB Development
 
-To test the dynamo db implementation, you havd to run a [local instance of dynamo db](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html).
+To test the dynamo db implementation, you have to run a [local instance of dynamo db](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html).
 
 You can download dynamodb [here](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html).
 
