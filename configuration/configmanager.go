@@ -2,7 +2,7 @@ package configuration
 
 // ReadOnlyConfigProvider retrieve configurations content
 type ReadOnlyConfigProvider interface {
-	GetConfig(configKey string) (string, error)
+	GetConfig(configKey string) (interface{}, error)
 }
 
 // ConfigManager retrieve configurations content
