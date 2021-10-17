@@ -3,7 +3,7 @@ package configuration
 import (
 	"fmt"
 
-	"github.com/jo-hoe/gocommon/repository"
+	"github.com/jo-hoe/serverless-toolbox/repository"
 )
 
 // RepositoryConfigProvider retrieves configurations from enviroment variables

@@ -3,7 +3,7 @@ package filter
 import (
 	"testing"
 
-	"github.com/jo-hoe/gocommon/repository"
+	"github.com/jo-hoe/serverless-toolbox/repository"
 )
 
 func TestNewPersistantDuplicationFilter(t *testing.T) {

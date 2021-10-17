@@ -4,7 +4,7 @@ import (
 	// alternative is
 	"log"
 
-	"github.com/jo-hoe/gocommon/repository"
+	"github.com/jo-hoe/serverless-toolbox/repository"
 )
 
 // DuplicationFilter stores items returns all items which

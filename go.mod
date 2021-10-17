@@ -1,14 +1,15 @@
-module github.com/jo-hoe/gocommon
+module github.com/jo-hoe/serverless-toolbox
 
 go 1.17
 
 require (
-	github.com/aws/aws-sdk-go v1.41.0
+	github.com/aws/aws-lambda-go v1.27.0
+	github.com/aws/aws-sdk-go v1.41.4
 	github.com/google/uuid v1.3.0
+	github.com/sendgrid/sendgrid-go v3.10.2+incompatible
 )
 
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
+	github.com/sendgrid/rest v2.6.5+incompatible // indirect
 )

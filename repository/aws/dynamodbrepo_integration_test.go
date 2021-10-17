@@ -11,8 +11,8 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/jo-hoe/gocommon/repository"
-	"github.com/jo-hoe/gocommon/serialization"
+	"github.com/jo-hoe/serverless-toolbox/repository"
+	"github.com/jo-hoe/serverless-toolbox/serialization"
 )
 
 const testTableName = "testTable"

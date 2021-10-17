@@ -3,7 +3,7 @@ package configuration
 import (
 	"testing"
 
-	"github.com/jo-hoe/gocommon/repository"
+	"github.com/jo-hoe/serverless-toolbox/repository"
 )
 
 var testKey = "testKey"
@@ -23,7 +23,7 @@ func TestRepositoryConfigProviderSaveConfig(t *testing.T) {
 	}
 
 	expected := repository.KeyValuePair{
-		Key: testKey,
+		Key:   testKey,
 		Value: testValue,
 	}
 	if actual != expected {
@@ -34,7 +34,7 @@ func TestRepositoryConfigProviderSaveConfig(t *testing.T) {
 func TestRepositoryConfigProviderSaveConfig_Twice(t *testing.T) {
 	repo := repository.NewInMemoryRepo()
 	provider := NewRepositoryConfigProvider(repo)
-	err := provider.SetConfig(testKey, "someValue")	
+	err := provider.SetConfig(testKey, "someValue")
 	if err != nil {
 		t.Errorf("Expected nil but found error: %+s", err)
 	}
@@ -49,7 +49,7 @@ func TestRepositoryConfigProviderSaveConfig_Twice(t *testing.T) {
 	}
 
 	expected := repository.KeyValuePair{
-		Key: testKey,
+		Key:   testKey,
 		Value: testValue,
 	}
 	if actual != expected {

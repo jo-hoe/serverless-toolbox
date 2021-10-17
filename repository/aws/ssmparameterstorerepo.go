@@ -8,8 +8,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ssm"
 	"github.com/aws/aws-sdk-go/service/ssm/ssmiface"
-	"github.com/jo-hoe/gocommon/repository"
-	"github.com/jo-hoe/gocommon/serialization"
+	"github.com/jo-hoe/serverless-toolbox/repository"
+	"github.com/jo-hoe/serverless-toolbox/serialization"
 )
 
 // SSMParameterStoreRepo stores entries in AWS Parameter Store.

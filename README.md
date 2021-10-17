@@ -1,7 +1,7 @@
-# gocommon
+# Serverless Toolbox
 
-[![Test Status](https://github.com/jo-hoe/gocommon/workflows/test/badge.svg)](https://github.com/jo-hoe/gocommon/actions?workflow=test)
-[![Lint Status](https://github.com/jo-hoe/gocommon/workflows/lint/badge.svg)](https://github.com/jo-hoe/gocommon/actions?workflow=lint)
+[![Test Status](https://github.com/jo-hoe/serverless-toolbox/workflows/test/badge.svg)](https://github.com/jo-hoe/serverless-toolbox/actions?workflow=test)
+[![Lint Status](https://github.com/jo-hoe/serverless-toolbox/workflows/lint/badge.svg)](https://github.com/jo-hoe/serverless-toolbox/actions?workflow=lint)
 
 ## Linting
 

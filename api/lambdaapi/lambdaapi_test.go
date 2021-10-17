@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/jo-hoe/gocommon/repository"
+	"github.com/jo-hoe/serverless-toolbox/repository"
 )
 
 var mockedItem = MockItem{
