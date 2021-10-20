@@ -26,8 +26,7 @@ func TestSendMail(t *testing.T) {
 		Content: "Another test mail app",
 	}
 
-	sender.AddMessage(attributes)
-	err := sender.SendNotifications()
+	err := sender.SendNotification(attributes)
 	checkError(err, t)
 
 	if sender == nil {

@@ -28,8 +28,8 @@ func NewSendGridService(config *SendGridConfig) *SendGridService {
 	}
 }
 
-// SendMail mail to one or multiple receivers
-func (service *SendGridService) AddMessage(attributes MailAttributes) {
+// createMessages a sendgrid message
+func (service *SendGridService) createMessage(attributes MailAttributes) *mail.SGMailV3 {
 	// create new *SGMailV3
 	mailObject := mail.NewV3Mail()
 
@@ -55,20 +55,12 @@ func (service *SendGridService) AddMessage(attributes MailAttributes) {
 
 	// add `personalization` to `m`
 	mailObject.AddPersonalizations(personalization)
-	service.messages = append(service.messages, mailObject)
+	return mailObject
 }
 
-func (service *SendGridService) SendNotifications() error {
-	// can be build concurrent
-	for _, message := range service.messages {
-		err := service.sendRequest(message)
-		if err != nil {
-			// the method will stop sending if the first error
-			// is found
-			return err
-		}
-	}
-	return nil
+func (service *SendGridService) SendNotification(attributes MailAttributes) error {
+	message := service.createMessage(attributes)
+	return service.sendRequest(message)
 }
 
 func (service *SendGridService) sendRequest(mailObject *mail.SGMailV3) error {
