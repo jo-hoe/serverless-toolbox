@@ -9,6 +9,5 @@ type MailAttributes struct {
 
 // Service forwards E-Mail to a set of receivers
 type MailService interface {
-	AddMessage(attributes MailAttributes)
-	SendNotifications() error
+	SendNotification() error
 }
