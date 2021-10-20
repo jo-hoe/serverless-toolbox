@@ -16,18 +16,20 @@ type SendGridConfig struct {
 
 // SendGridService implements MailService
 type SendGridService struct {
-	config *SendGridConfig
+	config   *SendGridConfig
+	messages []*mail.SGMailV3
 }
 
 // NewSendGridService creates a SendGridService using an already initializes service
 func NewSendGridService(config *SendGridConfig) *SendGridService {
 	return &SendGridService{
-		config: config,
+		config:   config,
+		messages: make([]*mail.SGMailV3, 0),
 	}
 }
 
 // SendMail mail to one or multiple receivers
-func (service *SendGridService) SendMail(attributes MailAttributes) error {
+func (service *SendGridService) AddMessage(attributes MailAttributes) {
 	// create new *SGMailV3
 	mailObject := mail.NewV3Mail()
 
@@ -53,8 +55,20 @@ func (service *SendGridService) SendMail(attributes MailAttributes) error {
 
 	// add `personalization` to `m`
 	mailObject.AddPersonalizations(personalization)
+	service.messages = append(service.messages, mailObject)
+}
 
-	return service.sendRequest(mailObject)
+func (service *SendGridService) SendNotifications() error {
+	// can be build concurrent
+	for _, message := range service.messages {
+		err := service.sendRequest(message)
+		if err != nil {
+			// the method will stop sending if the first error
+			// is found
+			return err
+		}
+	}
+	return nil
 }
 
 func (service *SendGridService) sendRequest(mailObject *mail.SGMailV3) error {
