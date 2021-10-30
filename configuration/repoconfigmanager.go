@@ -38,7 +38,7 @@ func (repositoryConfigProvider *RepositoryConfigProvider) GetConfig(configKey st
 	if value, ok := repositoryConfigProvider.cache[configKey]; ok {
 		return value, nil
 	} else {
-		return nil, fmt.Errorf("could not find configuration for key '%s' but found %v", configKey, repositoryConfigProvider.cache)
+		return nil, fmt.Errorf("could not find configuration for key '%s' but found %+v", configKey, repositoryConfigProvider.cache)
 	}
 }
 

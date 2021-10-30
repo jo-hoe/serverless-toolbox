@@ -48,11 +48,12 @@ func (repo *SSMParameterStoreRepo) FindAll() ([]repository.KeyValuePair, error) 
 	repo.mutex.RLock()
 	defer repo.mutex.RUnlock()
 
-	results := []repository.KeyValuePair{}
+	results := make([]repository.KeyValuePair, 0)
 
 	getParametersByPathInput := &ssm.GetParametersByPathInput{
 		Path:           aws.String(repo.path),
 		WithDecryption: aws.Bool(true),
+		MaxResults:     aws.Int64(10),
 	}
 
 	err := repo.ssmClient.GetParametersByPathPages(getParametersByPathInput, func(resp *ssm.GetParametersByPathOutput, lastPage bool) bool {
