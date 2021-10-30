@@ -48,37 +48,30 @@ func (repo *SSMParameterStoreRepo) FindAll() ([]repository.KeyValuePair, error) 
 	repo.mutex.RLock()
 	defer repo.mutex.RUnlock()
 
-	return repo.getAllParametersByPath()
-}
+	results := []repository.KeyValuePair{}
 
-func (repo *SSMParameterStoreRepo) getAllParametersByPath() ([]repository.KeyValuePair, error) {
-	var input = &ssm.GetParametersByPathInput{}
-	input.SetWithDecryption(true)
-	input.SetPath(repo.path)
-	input.SetMaxResults(10)
-	return repo.getParameters(input)
-}
-
-func (repo *SSMParameterStoreRepo) getParameters(input *ssm.GetParametersByPathInput) ([]repository.KeyValuePair, error) {
-	items := make([]repository.KeyValuePair, 0)
-
-	if err := repo.ssmClient.GetParametersByPathPages(input, func(result *ssm.GetParametersByPathOutput, isNotDone bool) bool {
-		for _, parameter := range result.Parameters {
-			if parameter.Name == nil {
-				continue
-			}
-			fullName := *parameter.Name
-			items = append(items, repository.KeyValuePair{
-				Key:   fullName[:len(repo.path)-1], // remove path from key
-				Value: *parameter.Value,
-			})
-		}
-		return !isNotDone
-	}); err != nil {
-		return nil, err
+	getParametersByPathInput := &ssm.GetParametersByPathInput{
+		Path:           aws.String(repo.path),
+		WithDecryption: aws.Bool(true),
 	}
 
-	return items, nil
+	err := repo.ssmClient.GetParametersByPathPages(getParametersByPathInput, func(resp *ssm.GetParametersByPathOutput, lastPage bool) bool {
+		for _, param := range resp.Parameters {
+			fullKey := *param.Name
+			item := repository.KeyValuePair{
+				Key:   fullKey[:len(repo.path)-1], // remove path from key
+				Value: *param.Value,
+			}
+
+			results = append(results, item)
+		}
+		return true
+	})
+
+	if err != nil {
+		results = nil
+	}
+	return results, err
 }
 
 func (repo *SSMParameterStoreRepo) Save(key string, in interface{}) (repository.KeyValuePair, error) {
