@@ -24,6 +24,7 @@ func NewRepositoryConfigProvider(repo repository.KeyValueRepo) *RepositoryConfig
 func (repositoryConfigProvider *RepositoryConfigProvider) GetConfig(configKey string) (interface{}, error) {
 	// init cache
 	if repositoryConfigProvider.cache == nil {
+		repositoryConfigProvider.cache = make(map[string]interface{})
 		// load all items into cache
 		keyValuePairs, err := repositoryConfigProvider.repo.FindAll()
 		if err != nil {
@@ -38,7 +39,7 @@ func (repositoryConfigProvider *RepositoryConfigProvider) GetConfig(configKey st
 	if value, ok := repositoryConfigProvider.cache[configKey]; ok {
 		return value, nil
 	} else {
-		return nil, fmt.Errorf("could not find configuration for key '%s' but found %v", configKey, repositoryConfigProvider.cache)
+		return nil, fmt.Errorf("could not find configuration for key '%s' but found %+v", configKey, repositoryConfigProvider.cache)
 	}
 }
 
