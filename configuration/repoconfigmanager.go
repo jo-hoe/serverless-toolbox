@@ -24,6 +24,7 @@ func NewRepositoryConfigProvider(repo repository.KeyValueRepo) *RepositoryConfig
 func (repositoryConfigProvider *RepositoryConfigProvider) GetConfig(configKey string) (interface{}, error) {
 	// init cache
 	if repositoryConfigProvider.cache == nil {
+		repositoryConfigProvider.cache = make(map[string]interface{})
 		// load all items into cache
 		keyValuePairs, err := repositoryConfigProvider.repo.FindAll()
 		if err != nil {
