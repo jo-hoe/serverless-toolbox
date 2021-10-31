@@ -20,8 +20,6 @@ func NewRepositoryConfigProvider(repo repository.KeyValueRepo) *RepositoryConfig
 // GetConfig returns a configuration for a given key. Otherwise nil is returned with an error
 func (repositoryConfigProvider *RepositoryConfigProvider) GetConfig(configKey string) (interface{}, error) {
 	result, err := repositoryConfigProvider.repo.Find(configKey)
-	value, erri := repositoryConfigProvider.repo.FindAll()
-	fmt.Printf("all: '%v'; error: %v", value, erri)
 	if err == nil {
 		return result.Value, err
 	} else {
