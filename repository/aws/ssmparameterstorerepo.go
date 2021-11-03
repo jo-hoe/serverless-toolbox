@@ -45,8 +45,6 @@ func NewStringSSMParameterStoreRepo(path string, ssmClient ssmiface.SSMAPI) *SSM
 
 }
 
-// TODO: this method seems to not return the expected values when deployed in lambda
-// futher investigation are required
 func (repo *SSMParameterStoreRepo) FindAll() ([]repository.KeyValuePair, error) {
 	repo.mutex.RLock()
 	defer repo.mutex.RUnlock()
