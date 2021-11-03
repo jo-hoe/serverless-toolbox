@@ -2,6 +2,7 @@ package aws
 
 import (
 	"log"
+	"strings"
 	"sync"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -61,7 +62,7 @@ func (repo *SSMParameterStoreRepo) FindAll() ([]repository.KeyValuePair, error) 
 		for _, param := range resp.Parameters {
 			fullKey := *param.Name
 			item := repository.KeyValuePair{
-				Key:   fullKey[:len(repo.path)-1], // remove path from key
+				Key:   strings.TrimPrefix(fullKey, repo.path), // remove path from key
 				Value: *param.Value,
 			}
 
