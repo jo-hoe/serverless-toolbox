@@ -69,7 +69,8 @@ func (mock *mockSSM) GetParametersByPathPages(input *ssm.GetParametersByPathInpu
 		allitems := make([]*ssm.Parameter, 0)
 		for key, element := range mock.mapItem {
 			param := new(ssm.Parameter)
-			param.Name = &key
+			keyCopy := key
+			param.Name = &keyCopy
 			value := fmt.Sprintf("%v", element)
 			param.Value = &value
 			allitems = append(allitems, param)

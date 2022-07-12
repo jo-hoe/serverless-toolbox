@@ -42,7 +42,7 @@ func Test_Find_All_Strings(t *testing.T) {
 	}
 	for key, element := range mock.mapItem {
 		item := repository.KeyValuePair{
-			Key:   key[:len(testPath)-1],
+			Key:   key[len(testPath):],
 			Value: element,
 		}
 		if !contains(items, item) {
