@@ -10,7 +10,11 @@ func TestMockMailService_SendNotification(t *testing.T) {
 		Content: "test content",
 	}
 
-	test.SendNotification(attributes)
+	err := test.SendNotification(attributes)
+
+	if err != nil {
+		t.Errorf("Found error %v", err)
+	}
 
 	if attributes.To[0] != test.SendMails[0].To[0] ||
 		attributes.Subject != test.SendMails[0].Subject ||
