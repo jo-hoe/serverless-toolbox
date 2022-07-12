@@ -5,13 +5,10 @@ type MockMailService struct {
 	SendMails []MailAttributes
 }
 
-func NewMockMailService() *MockMailService {
-	return &MockMailService{
-		SendMails: make([]MailAttributes, 0),
+func (service *MockMailService) SendNotification(attributes MailAttributes) error {
+	if service.SendMails == nil {
+		service.SendMails = make([]MailAttributes, 0)
 	}
-}
-
-func (service MockMailService) SendNotification(attributes MailAttributes) error {
 	service.SendMails = append(service.SendMails, attributes)
 
 	return nil
