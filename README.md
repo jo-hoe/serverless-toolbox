@@ -2,6 +2,7 @@
 
 [![Test Status](https://github.com/jo-hoe/serverless-toolbox/workflows/test/badge.svg)](https://github.com/jo-hoe/serverless-toolbox/actions?workflow=test)
 [![Lint Status](https://github.com/jo-hoe/serverless-toolbox/workflows/lint/badge.svg)](https://github.com/jo-hoe/serverless-toolbox/actions?workflow=lint)
+[![CodeQL Status](https://github.com/jo-hoe/serverless-toolbox/workflows/CodeQL/badge.svg)](https://github.com/jo-hoe/serverless-toolbox/actions?workflow=CodeQL)
 
 ## Linting
 
