@@ -3,7 +3,7 @@ module github.com/jo-hoe/serverless-toolbox
 go 1.18
 
 require (
-	github.com/aws/aws-lambda-go v1.41.0
+	github.com/aws/aws-lambda-go v1.42.0
 	github.com/aws/aws-sdk-go v1.48.16
 	github.com/google/uuid v1.4.0
 	github.com/sendgrid/sendgrid-go v3.14.0+incompatible
